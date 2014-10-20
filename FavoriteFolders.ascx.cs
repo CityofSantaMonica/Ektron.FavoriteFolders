@@ -9,7 +9,7 @@ using Ektron.Cms.Widget;
 /// <summary>
 /// An Ektron workarea widget to display a customizable list of "favorite folders" for the current logged in user.
 /// </summary>
-public partial class widgets_FavoriteFolders : WorkareaWidgetBaseControl, IWidget
+public partial class FavoriteFoldersWidget : WorkareaWidgetBaseControl, IWidget
 {
     /// <summary>
     /// Models a single chosen "favorite folder"
