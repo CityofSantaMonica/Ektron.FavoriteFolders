@@ -1,4 +1,4 @@
-<%@ Control Language="C#" AutoEventWireup="true" CodeFile="FavoriteFolders.ascx.cs" Inherits="widgets_FavoriteFolders" %>
+<%@ Control Language="C#" AutoEventWireup="true" CodeFile="FavoriteFolders.ascx.cs" Inherits="FavoriteFoldersWidget" %>
 
 <div style="overflow: hidden;">
     <asp:MultiView ID="ViewSet" runat="server" ActiveViewIndex="0">
