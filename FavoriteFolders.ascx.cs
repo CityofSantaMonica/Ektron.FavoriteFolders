@@ -28,9 +28,11 @@ public partial class FavoriteFoldersWidget : WorkareaWidgetBaseControl, IWidget
     [WidgetDataMember(new string[0])]
     public string[] Favorites { get; set; }
 
+    /// <summary>
+    /// Boilerplate widget code
+    /// </summary>
     protected override void OnInit(EventArgs e)
     {
-        //boilerplate widget code
         base.OnInit(e);
         base.Host.Edit += new EditDelegate(EditEvent);
         base.Host.Maximize += new MaximizeDelegate(delegate() { Visible = true; });
@@ -38,7 +40,10 @@ public partial class FavoriteFoldersWidget : WorkareaWidgetBaseControl, IWidget
         base.Host.Create += new CreateDelegate(delegate() { EditEvent(""); });
         ViewSet.SetActiveView(uxWidgetView);
     }
-
+    
+    /// <summary>
+    /// Event handler for the widget's pre-render phase
+    /// </summary>
     protected void Page_PreRender(object sender, EventArgs e)
     {
         //if the user is viewing their selected list of favorite folders
@@ -54,9 +59,45 @@ public partial class FavoriteFoldersWidget : WorkareaWidgetBaseControl, IWidget
         string title = "<strong>Favorite Folders</strong> (click the check at the far right to add folders to this list)";
         base.SetTitle(title);
     }
+    
+    /// <summary>
+    /// Event handler called as the editor view is about to be displayed to the user.
+    /// </summary>
+    protected void EditEvent(string settings = "")
+    {
+        //the complete folder tree in Ektron
+        var folderTree = new FolderManager().GetTree(0);
+        
+        //build a .NET TreeNode representation of the Ektron folder structure
+        var rootNode = this.buildNodeHeirarchy(folderTree);
+
+        //bind this TreeNode to an ASP.NET TreeView control
+        FolderTreeView.Nodes.Clear();
+        FolderTreeView.Nodes.Add(rootNode);
+
+        //make sure the root is expanded
+        rootNode.Expand();
+
+        //ensure all parents of selected nodes are expanded so the selected folders are shown in the TreeView
+        var selected = FolderTreeView.CheckedNodes.Cast<TreeNode>();
+        foreach (var node in selected)
+        {
+            var parent = node.Parent;
+            while (parent != null)
+            {
+                parent.Expand();
+                parent = parent.Parent;
+            }
+        
+        }
+
+        //finally, display the edit view
+        //(e.g. the ASP.NET TreeView control with checkboxes for each folder
+        ViewSet.SetActiveView(uxEditView);
+    }
 
     /// <summary>
-    /// Event for saving a user's list of favorite folders.
+    /// Event handler called in response to the user clicking the Save button
     /// </summary>
     protected void SaveButton_Click(object sender, EventArgs e)
     {
@@ -74,7 +115,7 @@ public partial class FavoriteFoldersWidget : WorkareaWidgetBaseControl, IWidget
     }
 
     /// <summary>
-    /// Event for cancelling a selection of favorite folders.
+    /// Event handler called in response to the user clicking the Cancel button
     /// </summary>
     protected void CancelButton_Click(object sender, EventArgs e)
     {
@@ -82,41 +123,7 @@ public partial class FavoriteFoldersWidget : WorkareaWidgetBaseControl, IWidget
         ViewSet.SetActiveView(uxWidgetView);
     }
 
-    /// <summary>
-    /// Builds a UI for selecting favorite folders from a list of all possible folders.
-    /// </summary>
-    protected void EditEvent(string settings = "")
-    {
-        //the complete folder tree in Ektron
-        var folderTree = new FolderManager().GetTree(0);
-        
-        //build a .NET TreeNode representation of the Ektron folder structure
-        var rootNode = this.buildNodeHeirarchy(folderTree);
-
-        //bind this TreeNode to an ASP.NET TreeView control
-        FolderTreeView.Nodes.Clear();
-        FolderTreeView.Nodes.Add(rootNode);
-
-        //make sure the root is expanded
-        rootNode.Expand();
-
-        //now expand all selected child nodes
-        var selected = FolderTreeView.CheckedNodes.Cast<TreeNode>();
-        foreach (var node in selected)
-        {
-            var parent = node.Parent;
-            while (parent != null)
-            {
-                parent.Expand();
-                parent = parent.Parent;
-            }
-        
-        }
-
-        //finally, display the edit view
-        //(e.g. the ASP.NET TreeView control with checkboxes for each folder
-        ViewSet.SetActiveView(uxEditView);
-    }
+    
 
     /// <summary>
     /// Get a collection of Ektron FolderData for the current user's selected favorites
